@@ -13,3 +13,7 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
+
+**Rinkeby Contract Address**
+
+- 1st version: `0xF8F930603533d5B531DC452835043834B2381c9c`
