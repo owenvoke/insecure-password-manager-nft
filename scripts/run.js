@@ -1,13 +1,13 @@
 const main = async () => {
-    const nftContractFactory = await hre.ethers.getContractFactory('ButterflyNFT');
+    const nftContractFactory = await hre.ethers.getContractFactory('InsecurePasswordManager');
     const nftContract = await nftContractFactory.deploy();
     await nftContract.deployed();
     console.log("Contract deployed to:", nftContract.address);
 
-    let txn = await nftContract.mintButterfly()
+    let txn = await nftContract.generatePassword()
     await txn.wait()
 
-    txn = await nftContract.mintButterfly()
+    txn = await nftContract.generatePassword()
     await txn.wait()
 };
 

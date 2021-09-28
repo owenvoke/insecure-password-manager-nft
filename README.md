@@ -16,4 +16,5 @@ npx hardhat help
 
 **Rinkeby Contract Address**
 
-- 1st version: `0xF8F930603533d5B531DC452835043834B2381c9c`
+- 1st version (Butterfly): `0xF8F930603533d5B531DC452835043834B2381c9c`
+- 2nd version: `0x8A9B5196cFAa51576dA0Ec6DFD8F8Ff46367199b`
