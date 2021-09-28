@@ -11,11 +11,18 @@ contract InsecurePasswordManager is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    string baseSvg = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><rect width='100%' height='100%' rx='5' ry='5' stroke-width='3' stroke='orange'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#fff' font-family='sans-serif' font-size='14'>";
+    uint256 public constant maxPasswords = 50;
+
+    string svgPartOne = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><rect width='100%' height='100%' rx='5' ry='5' stroke-width='3' stroke='";
+    string svgPartTwo = "'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#fff' font-family='sans-serif' font-size='14'>";
 
     string[] firstWords = ["Acrobatic", "Brave", "Bumbling", "Grim", "Lanky", "Lazy", "Nocturnal", "Evil", "Quality"];
     string[] secondWords = ["Llama", "Alpaca", "Stoat", "Skunk", "Badger", "Ferret", "Panda", "Toucan", "Koala", "Kangaroo"];
     string[] thirdWords = ["Clamp", "Knife", "Bottle", "Banana", "Cork", "Pencil", "Potato", "Costume", "Trunk", "Suit"];
+
+    string[] colours = ["Red", "Green", "Blue", "Aqua", "Purple", "Pink", "Orange"];
+
+    event NewPasswordGenerated(address sender, uint256 tokenId);
 
     constructor() ERC721 ("InsecurePasswordManager", "INSCRPW") {
         console.log("This is the Insecure Password Manager NFT contract.");
@@ -39,6 +46,12 @@ contract InsecurePasswordManager is ERC721URIStorage {
         return thirdWords[rand];
     }
 
+    function pickRandomColour(uint256 tokenId) public view returns (string memory) {
+        uint256 rand = random(string(abi.encodePacked("COLOUR", Strings.toString(tokenId))));
+        rand = rand % colours.length;
+        return colours[rand];
+    }
+
     function random(string memory input) internal pure returns (uint256) {
         return uint256(keccak256(abi.encodePacked(input)));
     }
@@ -46,12 +59,16 @@ contract InsecurePasswordManager is ERC721URIStorage {
     function generatePassword() public {
         uint256 newItemId = _tokenIds.current();
 
+        require(_tokenIds.current() < maxPasswords, "Insecure Password Manager: All passwords have already been claimed");
+
         string memory first = pickRandomFirstWord(newItemId);
         string memory second = pickRandomSecondWord(newItemId);
         string memory third = pickRandomThirdWord(newItemId);
         string memory password = string(abi.encodePacked(first, "-", second, "-", third));
 
-        string memory passwordSvg = string(abi.encodePacked(baseSvg, password, "</text></svg>"));
+        string memory borderColour = pickRandomColour(newItemId);
+
+        string memory passwordSvg = string(abi.encodePacked(svgPartOne, borderColour, svgPartTwo, password, "</text></svg>"));
 
         string memory json = Base64.encode(
             bytes(
@@ -75,8 +92,14 @@ contract InsecurePasswordManager is ERC721URIStorage {
 
         _setTokenURI(newItemId, passwordTokenUri);
 
+        _tokenIds.increment();
+
         console.log("An NFT w/ ID %s has been minted to %s", newItemId, msg.sender);
 
-        _tokenIds.increment();
+        emit NewPasswordGenerated(msg.sender, newItemId);
+    }
+
+    function getTotalGeneratedPasswords() public view returns (uint256) {
+        return _tokenIds.current();
     }
 }

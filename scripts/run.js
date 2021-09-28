@@ -9,6 +9,8 @@ const main = async () => {
 
     txn = await nftContract.generatePassword()
     await txn.wait()
+
+    console.log(await nftContract.getTotalGeneratedPasswords())
 };
 
 const runMain = async () => {
